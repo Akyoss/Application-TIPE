@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: '#0a2342', // bleu forêt
+    backgroundColor: '#0a1033', // bleu nuit du logo
   },
   logo: {
     width: 100,
