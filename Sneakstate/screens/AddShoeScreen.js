@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import Toast from '../components/Toast';
 
 const AddShoeScreen = ({ navigation, onAddShoe }) => {
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('');
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ visible: false, message: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   // Correction : demander la permission et utiliser launchImageLibraryAsync si launchCameraAsync échoue
   const pickImage = async () => {
@@ -80,23 +83,28 @@ const AddShoeScreen = ({ navigation, onAddShoe }) => {
   };
 
   const handleSubmit = () => {
+    if (submitting) return;
     if (!name || !brand) {
       setError('Veuillez remplir tous les champs');
       return;
     }
-    // Création du profil chaussure avec vie à 100%
+    setSubmitting(true);
     const newShoe = {
       id: Date.now().toString(),
       name,
       brand,
       image,
       life: 100,
+      activities: [],
     };
-    // On passe la chaussure à la HomeScreen via navigation (state global à améliorer plus tard)
     if (onAddShoe) {
       onAddShoe(newShoe);
     }
-    navigation.goBack();
+    setToast({ visible: true, message: 'Chaussure ajoutée !' });
+    setTimeout(() => {
+      setSubmitting(false);
+      navigation.goBack();
+    }, 1200);
   };
 
   return (
@@ -123,9 +131,10 @@ const AddShoeScreen = ({ navigation, onAddShoe }) => {
       </TouchableOpacity>
       {image && <Image source={{ uri: image }} style={styles.preview} />}
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <TouchableOpacity style={styles.validateButton} onPress={handleSubmit}>
-        <Text style={styles.validateButtonText}>Valider</Text>
+      <TouchableOpacity style={styles.validateButton} onPress={handleSubmit} disabled={submitting}>
+        <Text style={[styles.validateButtonText, submitting && { opacity: 0.5 }]}>Valider</Text>
       </TouchableOpacity>
+      <Toast visible={toast.visible} message={toast.message} onHide={() => setToast({ visible: false, message: '' })} />
     </View>
   );
 };
@@ -135,7 +144,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     alignItems: 'center',
-    backgroundColor: '#0a2342',
+    backgroundColor: '#03083B',
   },
   title: {
     fontSize: 24,
